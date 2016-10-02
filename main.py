@@ -43,7 +43,7 @@ def main():
             column -= 2
             current_line = "".join(current_array)
             
-            if (current_line == ""):
+            if (current_line == "" or current_line == "\n"):
                 list_temp = prev_lines.pop()
                 list_temp = list(list_temp)
                 for i in range(0, len("".join(list_temp))):
@@ -56,6 +56,7 @@ def main():
             current_array.append("\n")
             prev_lines.append("".join(current_array).rstrip("\r"))
             current_array = []
+            current_line = ""
         
         elif (current_pressed == ""):
             break
