@@ -4,15 +4,22 @@ import time
   
 current_array = []
 prev_lines = []
-    
+
 def main():
+    save_filename = ""  
+    
     global current_array
+    global prev_lines
+    
     current_line = "".join(current_array)
 
     line = 1
     column = len(current_line)
-    term_height = Terminal.Position.get_height()-3
+    remove_from_term_height = 3
+    term_height = Terminal.Position.get_height()-remove_from_term_height
+    
     prev_lines = []
+    current_words = []
     
     look = False
     look_array = []
@@ -30,11 +37,19 @@ def main():
         
         column = len("".join(split_array))
         
+        #^s Key
         if (current_pressed == "\x13"):
             current_array.pop()
-            current_array.append("EMPTY!")
+            if (save_filename == ""):
+                message = "type $filename$ to choose filename."
+            else:
+                save_file = open("."+save_filename, "w")
+                save_file.write("".join(prev_lines)+current_line)
+                save_file.close()
+                message = "created file '{}'".format(save_filename)
         
-        elif (current_pressed == "\x08"):
+        #BACK Key
+        elif (current_pressed == "\x08" or current_pressed == "[3~"):
             for i in range(0, 2):
                 try:
                     current_array.pop()
@@ -49,21 +64,20 @@ def main():
                 for i in range(0, len("".join(list_temp))):
                     current_array.insert(i, list_temp.pop(0))
             
+        #ENTER Key
         elif (current_pressed == "\r"):
             current_array.pop()
-            term_height -= 1
+            remove_from_term_height += 1
             line += 1
             current_array.append("\n")
             prev_lines.append("".join(current_array).rstrip("\r"))
             current_array = []
             current_line = ""
         
+        #ESCAPE Key
         elif (current_pressed == ""):
             break
         
-        else:
-            message = "Accepted Key '{}'".format(current_pressed)  
-            
         look_join = "".join(look_array)    
         if (current_pressed == "$"):
             look_array = []
@@ -82,11 +96,17 @@ def main():
         if (look == True):
             look_array.append(current_pressed)
             
-            if ("quit" in look_join):
+            if (look_join == "quit" or look_join == "exit"):
                 break
-            elif ("clean" in look_join):
+            elif (look_join == "clean" or look_join == "clear"):
                 current_array = []
+                prev_lines = []
+                current_line = ""
                 look = False
+            elif (look_join == "filename"):
+                save_filename = input("set filename: ")
+                message = "filename set."
+        term_height = Terminal.Position.get_height()-remove_from_term_height
               
     Terminal.clear()
     quit()
